@@ -1,0 +1,18 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Login | {% endblock title %}
+
+{% block content %}
+    <div class="main-content center title-content">
+        <h2>Login</h2>
+        <br>
+        {% include 'authors/partials/login_message.html' %}
+    </div>
+
+    {% include 'global/partials/messages.html' %}
+
+    {% if not user.is_authenticate %}
+        {% include 'global/partials/form.html' %}
+    {% endif %}
+
+{% endblock content %}

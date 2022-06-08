@@ -1,0 +1,12 @@
+{% extends 'global/base.html' %}
+
+{% block title %}Profile | {% endblock title %}
+
+{% block content %}
+    <div class="main-content center title-content">
+        <h2>{{ profile.author.username }}</h2>
+        <p>{{ profile.bio }}</p>
+        <p>teste</p>
+    </div>
+
+{% endblock content %}

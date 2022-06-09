@@ -28,7 +28,7 @@ class RecipeManager(models.Manager):
             author_full_name=Concat(
                 F('author__first_name'), Value(' '),
                 F('author__last_name'), Value('('),
-                F('author___username'), Value(')'),
+                F('author__username'), Value(')'),
             )
         ).order_by('-id')
 

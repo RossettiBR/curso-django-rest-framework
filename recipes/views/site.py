@@ -3,6 +3,7 @@ import os
 from django.db.models import Q
 from django.http import JsonResponse
 from django.http import Http404
+from django.db.models.aggregates import Count
 from utils.pagination import make_pagination
 from django.views.generic import ListView, DetailView
 from django.shortcuts import render
@@ -15,9 +16,12 @@ PER_PAGE = int(os.environ.get('PER_PAGE', 6))
 
 
 def theory(request, *args, **kwargs):
-    recipes = Recipe.objects.all()
+    recipes = Recipe.objects.get_published()
+    number_of_recipes = recipes.aggregate(number=Count('id'))
+
     context = {
-        'recipes': recipes
+        'recipes': recipes,
+        'number_of_recipes': number_of_recipes['number']
     }
     return render(
         request,

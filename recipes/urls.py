@@ -29,8 +29,13 @@ urlpatterns = [
     ),
     path('recipes/theory/', views.theory, name="theory"),
     path(
-        'recipes/api/v2/', 
+        'recipes/api/v2/',
         views.recipe_api_list,
         name='recipe_api_v2',
+    ),
+    path(
+        'recipes/api/v2/<int:pk>/',
+        views.recipe_api_detail,
+        name='recipe_api_v2_detail',
     ),
 ]

@@ -1,11 +1,12 @@
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
 from django.shortcuts import get_object_or_404
 from recipes.models import Recipe
 from recipes.serializers import RecipeSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from tag.models import Tag
+
 from ..serializers import TagSerializer
 
 
@@ -24,7 +25,7 @@ def recipe_api_list(request):
             data=request.data
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        # serializer.save()
         return Response(
             serializer._validated_data,
             status=status.HTTP_201_CREATED

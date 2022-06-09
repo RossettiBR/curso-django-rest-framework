@@ -1,7 +1,7 @@
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.shortcuts import get_object_or_404
 from recipes.models import Recipe
 from recipes.serializers import RecipeSerializer
 
@@ -15,6 +15,9 @@ def recipe_api_list(request):
 
 @api_view()
 def recipe_api_detail(request, pk):
-    recipes = Recipe.objects.filter(pk=pk)
-    serialized = RecipeSerializer(instance=recipes, many=False)
+    recipe = get_object_or_404(
+        Recipe.objects.get_published(),
+        pk=pk
+    )
+    serialized = RecipeSerializer(instance=recipe, many=False)
     return Response(serialized.data)

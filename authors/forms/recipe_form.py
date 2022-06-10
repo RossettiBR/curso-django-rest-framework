@@ -1,8 +1,9 @@
 from collections import defaultdict
-from utils.strings import is_positive_number
+
 from django import forms
 from recipes.models import Recipe
 from utils.django_forms import add_attr
+from utils.strings import is_positive_number
 
 
 class AuthorRecipeForm(forms.ModelForm):

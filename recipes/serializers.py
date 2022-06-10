@@ -19,7 +19,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'author',
             'category', 'tags', 'public', 'preparation',
             'tag_objects', 'tag_links', 'servings',
-            'preparation_time',
+            'preparation_time', 'preparation_time_unit',
+            'servings_unit', 'preparation_step',
         ]
 
     public = serializers.BooleanField(
@@ -40,6 +41,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         source='tags',
         read_only=True,
     )
+    
     tag_links = serializers.HyperlinkedRelatedField(
         many=True,
         source='tags',

@@ -41,7 +41,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         source='tags',
         read_only=True,
     )
-    
+
     tag_links = serializers.HyperlinkedRelatedField(
         many=True,
         source='tags',

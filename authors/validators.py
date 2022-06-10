@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-
 from django.core.exceptions import ValidationError
 
 from utils.strings import is_positive_number
@@ -11,8 +10,13 @@ class AuthorRecipeValidator():
         self.errors = defaultdict(list) if errors is None else errors
         self.ErrorClass = ValidationError if ErrorClass is None else ErrorClass
         self.data = data
+        self.clean()
 
     def clean(self, *args, **kwargs):
+        self.clean_title()
+        self.clean_servings()
+        self.clean_preparation_time()
+
         super_clean = super().clean(*args, **kwargs)
         cleaned_data = self.data
         title = cleaned_data.get('title')
@@ -24,8 +28,6 @@ class AuthorRecipeValidator():
 
         if self.errors:
             raise self.ErrorClass(self.errors)
-
-        return super_clean
 
     def clean_title(self):
         title = self.data.get('title')

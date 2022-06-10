@@ -42,5 +42,8 @@ class AuthorRecipeForm(forms.ModelForm):
 
     def clean(self, *args, **kwargs):
         super_clean = super().clean(*args, **kwargs)
-        AuthorRecipeValidator(self.cleaned_data, ErrorClass=ValidationError)
+        AuthorRecipeValidator(
+            self.cleaned_data,
+            ErrorClass=forms.ValidationError
+        )
         return super_clean

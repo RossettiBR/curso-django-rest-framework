@@ -20,7 +20,7 @@ class RecipeAPIv2ViewSet(ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
-        
+
         recipe = self.get_queryset().filter(pk=pk).first()
         serializer = RecipeSerializer(
             instance=recipe,

@@ -1,4 +1,3 @@
-from email.mime import base
 from django.urls import include, path
 from recipes import views
 from rest_framework.routers import SimpleRouter

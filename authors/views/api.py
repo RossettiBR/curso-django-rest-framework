@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from .. serializers import AuthorSerializer
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import IsAuthenticated, 
+from rest_framework.permissions import IsAuthenticated
 
 
 class AuthorViewSet(ReadOnlyModelViewSet):

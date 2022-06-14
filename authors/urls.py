@@ -39,4 +39,5 @@ urlpatterns = [
         name='profile'
     ),
 ]
+
 urlpatterns += author_api_router.urls

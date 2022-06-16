@@ -1,3 +1,4 @@
+from os import access
 from sqlite3 import DataError
 from urllib import response
 from rest_framework import test
@@ -6,7 +7,7 @@ from django.urls import reverse
 from unittest.mock import patch
 
 
-class RecipeAPIv2Test(test.APITestCase, RecipeMixin):
+class RecipeAPIv2TestMixin(RecipeMixin):
     def get_recipe_reverse_url(self, reverse_result=None):
         api_url = reverse_result or reverse('recipes:recipe-api-list')
         return api_url
@@ -17,7 +18,7 @@ class RecipeAPIv2Test(test.APITestCase, RecipeMixin):
         return response
 
     def get_recipe_raw_data(self):
-        data = {
+        return {
             'title': 'This is the title',
             'description': 'This is the description',
             'servings': 1,
@@ -26,14 +27,13 @@ class RecipeAPIv2Test(test.APITestCase, RecipeMixin):
             'preparation_time_unit': 'Minutes',
             'preparation_step': 'This is the preparation step'
         }
-        return data
 
-    def get_jwt_access_token(self):
+    def get_auth_data(self, username='user', password='pass'):
         userdata = {
-            'username': 'user',
-            'password': 'password',
+            'username': username,
+            'password': password,
         }
-        self.make_author(
+        user = self.make_author(
             username=userdata.get('username'),
             password=userdata.get('password')
         )
@@ -41,8 +41,14 @@ class RecipeAPIv2Test(test.APITestCase, RecipeMixin):
             reverse('recipes:token_obtain_pair'),
             data={**userdata}
         )
-        return response.data.get('access')
+        return {
+            'jwt_access_token': response.data.get('access'),
+            'jwt_refresh_token': response.data.get('refresh'),
+            'user': user,
+        }
 
+
+class RecipeAPIv2Test(test.APITestCase, RecipeAPIv2TestMixin):
     def test_recipe_api_list_returns_status_code_200(self):
         response = self.get_recipe_api_list()
         self.assertEqual(
@@ -103,14 +109,67 @@ class RecipeAPIv2Test(test.APITestCase, RecipeMixin):
             401
         )
 
-    def test_recipe_api_list_logged_user_ca_create_a_recipe(self):
-        data = self.get_recipe_raw_data()
+    def test_recipe_api_list_logged_user_cant_create_a_recipe(self):
+        recipe_raw_data = self.get_recipe_raw_data()
+        auth_data = self.get_auth_data()
+        jwt_access_token = auth_data.get('jwt_access_token')
+
         response = self.client.post(
             self.get_recipe_reverse_url(),
-            data=data,
-            HTTP_AUTHORIZATION=f'Bearer {self.get_jwt_access_token()}'
+            data=recipe_raw_data,
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}'
         )
         self.assertEqual(
             response.status_code,
             201
+        )
+
+    def test_recipe_api_list_logged_user_cant_update_a_recipe(self):
+        recipe = self.make_recipe()
+        access_data = self.get_auth_data(username='test_patch')
+        jwt_access_token = access_data.get('jwt_access_token')
+        author = access_data.get('user')
+        recipe.author = author
+        recipe.save()
+
+        wanted_new_title = f'The new title update by {author.username}'
+
+        response = self.client.patch(
+            reverse('recipes:recipe-api-detail', args=(recipe.id,)),
+            data={
+                'title': f'The new title update by {author.username}'
+            },
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token}',
+        )
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+        self.assertEqual(
+            response.data.get('title'),
+            wanted_new_title,
+        )
+
+    def test_recipe_api_list_logged_user_cant_update_a_recipe_owned_by_anoher_user(self):  # noqa
+        recipe = self.make_recipe()
+        access_data = self.get_auth_data(username='test_patch')
+
+        another_user = self.get_auth_data(username='cant_update')
+        jwt_access_token_from_another_user = another_user.get('jwt_access_token')
+
+        author = access_data.get('user')
+        recipe.author = author
+        recipe.save()
+
+        wanted_new_title = f'The new title update by {author.username}'
+
+        response = self.client.patch(
+            reverse('recipes:recipe-api-detail', args=(recipe.id,)),
+            data={},
+            HTTP_AUTHORIZATION=f'Bearer {jwt_access_token_from_another_user}',
+        )
+
+        self.assertEqual(
+            response.status_code,
+            403,
         )
